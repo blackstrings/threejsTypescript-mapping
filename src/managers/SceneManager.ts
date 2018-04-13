@@ -8,6 +8,12 @@ import { VectorUtils } from '../utils/VectorUtils';
 import { Subscription } from 'rxjs/Subscription';
 import { Debug } from '../utils/Debug';
 
+/**
+ * Manages actual shape classes.
+ * 
+ * @export
+ * @class SceneManager
+ */
 export class SceneManager {
 
   private debug: Debug = null;

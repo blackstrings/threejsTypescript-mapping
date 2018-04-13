@@ -14,6 +14,8 @@ import { Subscriptions } from '../events/Subscriptions';
  * The SelectionManager class, a wrapper around THREE.Raycaster, is used for capturing mouse events in
  * the canvas. It also contains a utility for projecting a small image onto the screen indicating
  * your current mouse location.
+ * 
+ * It can select Geometry and then publish the geometry id it selects so the sceneManager can pickup what shape is selected.
  *
  * @export
  * @class SelectionManager
