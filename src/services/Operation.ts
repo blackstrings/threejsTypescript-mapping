@@ -17,6 +17,10 @@ export class Operation {
     this.sceneManager.removeLastShape();
     //this.renderManager.render();  // shold not need this
   }
+  
+  public removeActiveShape(): void {
+    this.sceneManager.removeActiveShape();
+  }
 
   /**
    * Allow custom draw to take place.

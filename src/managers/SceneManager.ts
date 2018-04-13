@@ -22,6 +22,7 @@ export class SceneManager {
   public children: THREE.Object3D[];
 
   private shapes: Shape[] = [];
+  private activeShape: Shape = null;
 
   private isCustomDrawEnabled: boolean = false;
   private isShapeEditEnabled: boolean = false;
@@ -36,6 +37,11 @@ export class SceneManager {
     this.children = this.activeScene.children;
     this.showGrid();
     this.showAxisHelper();
+    
+    // select the shape base on geometry selection
+    Subscriptions.selectedObjectId.subscribe((objectId: number) => {
+      this.activeShape = this.getShape(objectId);
+    });
 
     Subscriptions.mouseClick.subscribe((mouseClickPosition: THREE.Vector3) => {
       // custom draw if enabled
@@ -261,10 +267,34 @@ export class SceneManager {
 
   public removeLastShape(): void {
     if (this.shapes && this.shapes.length && this.activeScene) {
-      const shapeToRemove: Shape = this.shapes.pop();
-      this.removeFromScene(shapeToRemove);
+      const shapeToRemove: Shape = this.shapes[this.shapes.length - 1];
+      this.removeShape(shapeToRemove);
     } else {
-      console.warn('failed to remove last shape, shapes or activeScene is null');
+      console.log('failed to remove last shape, shapes is empty or null or activeScene is null');
+    }
+  }
+  
+  public removeShape(shape: Shape): void {
+    if (shape) {
+      this.removeFromScene(shape);
+      
+      if (this.shapes && this.shapes.length) {
+        const index: number = this.shapes.indexOf(shape);
+        if (index >= 0) {
+          this.shapes.splice(index, 1);
+        } else {
+          console.warn(`Failed to remove shape from shapes array, index was: ${index}`);
+        }
+      }
+    }
+  }
+  
+  public removeActiveShape(): void {
+    if (this.activeShape) {
+      this.removeShape(this.activeShape);
+      this.activeShape = null;
+    } else {
+      console.log('No active shape removed, activeShape was null');
     }
   }
 

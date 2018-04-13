@@ -62,7 +62,12 @@ export class UIManager {
     btn.dom.addEventListener('click', () => {
       this.operation.enableShapeEdit();
     });
-    
+
+    btn = new Button('btn', 'Remove Active Shape');
+    panel.add(btn);
+    btn.dom.addEventListener('click', () => {
+      this.operation.removeActiveShape();
+    });
     
 
   }
