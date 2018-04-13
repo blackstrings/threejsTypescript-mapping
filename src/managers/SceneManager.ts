@@ -20,6 +20,9 @@ export class SceneManager {
   private isCustomDrawEnabled: boolean = false;
   private isShapeEditEnabled: boolean = false;
   private newCustomShapePoints: THREE.Vector3[] = [];
+  
+  private tempGeoMat: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+  private tempShapePointMeshes: THREE.Mesh[] = [];
 
   constructor() {
     this.activeScene = new THREE.Scene();
@@ -194,18 +197,57 @@ export class SceneManager {
   private drawCustomShape(mouseClickPosition: THREE.Vector3): void {
     const maxClick: number = 4;
     if (this.isCustomDrawEnabled) {
+      
+      // collect the clicks until you reach max click
       if (this.newCustomShapePoints && this.newCustomShapePoints.length < maxClick) {
-        this.newCustomShapePoints.push(mouseClickPosition);
+        this.createTempPointMesh(mouseClickPosition);
       
         if (this.newCustomShapePoints.length >= maxClick) {
           // draw the shape
           this.createShape(this.newCustomShapePoints);
           this.newCustomShapePoints = []; // reset
           this.setCustomDraw(false);  // turn off
+          this.cleanTempPointMeshes();
         }
         
       }
     } // custom draw is not enabled, do nothing
+  }
+  
+  private createTempPointMesh(mouseClick: THREE.Vector3): void {
+    if (this.tempShapePointMeshes && this.tempGeoMat) {
+      
+      // size
+      const radius: number = 2;
+      const geo: THREE.Geometry = new THREE.CircleGeometry(radius, 8);
+      const mesh: THREE.Mesh = new THREE.Mesh(geo, this.tempGeoMat);
+      
+      // get rounded number on grid
+      const snapValue: number = 12;
+      const mouseClickSnapPos: THREE.Vector3 = new THREE.Vector3();
+      const x: number = Math.round(mouseClick.x / snapValue) * snapValue;
+      const y: number = Math.round(mouseClick.y / snapValue) * snapValue;
+      mouseClickSnapPos.set(x, y, 0);
+      
+      // store so we can later pass into shape2D
+      this.newCustomShapePoints.push(mouseClickSnapPos);  
+      
+      // move each temp circle into position of where the clicked occured
+      mesh.position.copy(mouseClickSnapPos);
+      
+      this.tempShapePointMeshes.push(mesh);
+      this.activeScene.add(mesh);
+    }
+  }
+  
+  private cleanTempPointMeshes(): void {
+    if (this.tempShapePointMeshes && this.tempShapePointMeshes.length) {
+      
+      this.tempShapePointMeshes.forEach((mesh) => {
+        this.activeScene.remove(mesh);
+      });
+      this.tempShapePointMeshes = [];
+    }
   }
 
   public setCustomDraw(value: boolean): void {
