@@ -1,5 +1,5 @@
 import { SceneManager } from './SceneManager';
-import { SlotManager } from './SlotManager';
+import { SpaceManager } from './SpaceManager';
 import { RenderManager } from './RenderManager';
 import { CameraManager } from './CameraManager';
 import { CanvasManager } from './CanvasManager';
@@ -20,7 +20,7 @@ export class MainManager {
 
   private canvasManager: CanvasManager;
   private sceneManager: SceneManager;
-  private slotManager: SlotManager;
+  private spaceManager: SpaceManager;
   private renderManager: RenderManager;
   private cameraManager: CameraManager;
   private uiManager: UIManager;
@@ -48,7 +48,7 @@ export class MainManager {
       this.mouse = new Mouse(this.canvasManager, this.cameraManager);
       this.selectionManager = new SelectionManager(this.canvasManager, this.cameraManager, this.sceneManager, this.mouse);
       
-      this.slotManager = new SlotManager();
+      this.spaceManager = new SpaceManager();
       
       // after init
       this.operation = new Operation(this.sceneManager, this.renderManager);
@@ -71,7 +71,7 @@ export class MainManager {
   }
 
   public init(): void {
-    if (this.renderManager && this.sceneManager && this.slotManager) {
+    if (this.renderManager && this.sceneManager && this.spaceManager) {
 
     }
   }

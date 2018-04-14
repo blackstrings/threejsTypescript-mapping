@@ -1,7 +1,13 @@
 import { Shape2D } from './shapes/Shape2D';
 import { Vendor } from './Vendor';
 
-export class Slot {
+/**
+ * Contains a shape2D and vendor.
+ * 
+ * @export
+ * @class Space
+ */
+export class Space {
 
     private shape: Shape2D;
     private vender: Vendor;
