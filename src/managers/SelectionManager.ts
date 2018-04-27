@@ -42,12 +42,12 @@ export class SelectionManager {
    * @memberof SelectionManager
    */
   public static selectedObjectIdPub: ReplaySubject<number> = new ReplaySubject<number>(1);
-  
+
   // avoid publishing the object
   // public static selectedObjectPub: ReplaySubject<THREE.Object3D> = new ReplaySubject<THREE.Object3D>(1);
-  
+
   public static mouseClickPub: ReplaySubject<THREE.Vector3> = new ReplaySubject<THREE.Vector3>(1);
-  
+
   // lazy way - we would just create the obserable in this class, but we move the convention where the public observable subscription
   // is in RXJS class object - any class wish to subscribe to the publication, will have to import subscription
   // any class can subscribe to this publication
@@ -107,11 +107,11 @@ export class SelectionManager {
     // Subscribe to publications
     this.canvasManager.rendererDomParent.addEventListener('mousedown', (e) => { this.onMouseDown(e); }, false);
     this.canvasManager.rendererDomParent.addEventListener('touchstart', (e) => { this.onMouseDown(e); }, false);
-    
+
     Subscriptions.debugSetupComplete.subscribe((debug: Debug) => {
       this.debug = debug;
     });
-    
+
   }
 
   public enable(): void {
@@ -149,25 +149,26 @@ export class SelectionManager {
         this.mouse.mouseDownPosition = VectorUtils.toFixed(mouseDownPosition);
 
         if (this.debug && this.debug.enabled) {
-          console.log(`${this.logPrefix} mouse down location:`);
-          console.log(mouseDownPosition);
-          SelectionManager.mouseClickPub.next(this.mouse.mouseDownPosition);
-          
+          console.log(`${this.logPrefix} mouse down location: (${mouseDownPosition.x}, ${mouseDownPosition.y}, ${mouseDownPosition.z})`);
+
           // send information to any class that wishes to listen to mouse click locations
-          
+          // movement manager listens to this
+          SelectionManager.mouseClickPub.next(this.mouse.mouseDownPosition);
+
+
         }
       }
 
       const selectedObject = this.filterSelection();
       if (selectedObject) {
-        
+
         // store the offset from mouse click location to mesh origin position - for later moving so shape don't jump
         this.mouse.shapeOriginPositionLocal.copy(selectedObject.position.clone());
         SelectionManager.selectedObjectIdPub.next(selectedObject.id); // publish
 
         // avoid publishing the object, do the id instead
         // SelectionManager.selectedObjectPub.next(selectedObject);
-        
+
         // this is ony when you have nested objects and wish to select an object passively rather than directly
         // if the selected object carries userData, use the id from the userData instead
         // this is the case where a empty mesh has a background mesh as a child, and we are using the background mesh as the click region
@@ -182,7 +183,7 @@ export class SelectionManager {
           //console.log(`selected object id: ${selectedObject.id}`);
           //this._selectedThreeJSObjectId.next(selectedObject.id);
         }
-        
+
       }
     }
   }
@@ -205,14 +206,6 @@ export class SelectionManager {
       const intersects: THREE.Intersection[] = this.raycaster.intersectObjects(this.sceneManager.children, true);
 
       const intersectedObjs: THREE.Object3D[] = [];
-
-      // log the point of intersect
-      if (intersects.length > 0 && intersects[0]) {
-        console.log(`selected object location: `);
-        const objectLocation: THREE.Vector3 = new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
-        VectorUtils.toFixed(objectLocation);
-        console.log(objectLocation);
-      }
 
       // log any shapre regardless of filtered shapes
       if (this.debug && this.debug.enabled) {
@@ -238,12 +231,20 @@ export class SelectionManager {
         // if single object hit, just assign the object at index zero
         selectedObject = intersectedObjs[0];
       }
-      
+
       if (selectedObject) {
+
         // valid selections are geometry with valid names in the selectableGeometries array
         if (this.debug && this.debug.enabled) {
-          console.log('Selected filtered geometry is a valid selection of name: ' + selectedObject.name);
+          
+          // log the point of intersect
+          console.log('<< SelectionManager >> Selected filtered geometry is a valid selection of name: ' + selectedObject.name);
+          const objectLocation: THREE.Vector3 = selectedObject.position.clone();
+          VectorUtils.toFixed(objectLocation);
+          console.log(`<< SelectionManager >> selected object location: (${objectLocation.x}, ${objectLocation.y}, ${objectLocation.z})`);
+
         }
+
       } else {
         if (this.debug && this.debug.enabled) { console.log('No geometry selected or geometry is a invalid selection'); }
       }
@@ -251,7 +252,7 @@ export class SelectionManager {
     } else {
       console.log(`no children exist in scene to select`);
     }
-    
+
     return selectedObject;
   }
 

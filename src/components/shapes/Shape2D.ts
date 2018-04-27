@@ -9,7 +9,7 @@ import { Shape } from '../shapes/Shape';
  * @export
  * @class Shape
  */
-export class Shape2D extends Shape{
+export class Shape2D extends Shape {
 
   /**
    * contains 2d points
@@ -17,7 +17,7 @@ export class Shape2D extends Shape{
    * @type {THREE.Vector3[]}
    * @memberof Shape2D
    */
-  public points: THREE.Vector3[] = [];
+  private points: THREE.Vector3[] = [];
 
   public mesh: THREE.Mesh = null;
 
@@ -28,6 +28,22 @@ export class Shape2D extends Shape{
       this.create();
     } catch (e) {
       throw e;
+    }
+  }
+
+  /**
+   * Return clone versions of the points array, not the actual references
+   * 
+   * @returns {THREE.Vector3[]} 
+   * @memberof Shape2D
+   */
+  public getPoints(): THREE.Vector3[] {
+    if (this.points) {
+      const clonedPoints: THREE.Vector3[] = [];
+      this.points.forEach((point: THREE.Vector3) => {
+        clonedPoints.push(point.clone());
+      });
+      return clonedPoints;
     }
   }
 
@@ -44,6 +60,8 @@ export class Shape2D extends Shape{
       const shapeGeo: THREE.ShapeGeometry = new THREE.ShapeGeometry(shape);
       this.mesh = new THREE.Mesh(shapeGeo, new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff }));
       this.mesh.name = 'shape'; // has to be a valid name for the selection manager to filter the geometry during mouse down to make it selectable
+      this.uuid = this.mesh.uuid;
+      this.id = this.mesh.id;
     } else {
       throw new Error('<< Shape >> mesh2D is null');
     }

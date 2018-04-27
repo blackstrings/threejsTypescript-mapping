@@ -68,6 +68,12 @@ export class UIManager {
     btn.dom.addEventListener('click', () => {
       this.operation.removeActiveShape();
     });
+
+    btn = new Button('btn', 'New Space');
+    panel.add(btn);
+    btn.dom.addEventListener('click', () => {
+      this.operation.createSpace();
+    });
     
 
   }

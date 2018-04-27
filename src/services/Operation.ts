@@ -1,25 +1,36 @@
 import { Subscriptions } from '../events/Subscriptions';
-import { SceneManager } from '../managers/SceneManager';
+import { ShapeManager } from '../managers/ShapeManager';
 import { RenderManager } from '../managers/RenderManager';
+import { SpaceManager } from '../managers/SpaceManager';
+import { Shape2D } from '../components/shapes/Shape2D';
+import { SpaceService } from './SpaceService';
 
 
 export class Operation {
 
-  constructor(private sceneManager: SceneManager, private renderManager: RenderManager) {
+  constructor(private spaceSerivce: SpaceService, private renderManager: RenderManager) {
 
+  }
+  
+  public createSpace(): void {
+    this.spaceSerivce.createNewSpace();
   }
 
   public createShape(): void {
-    this.sceneManager.createShape();
+    //this.shapeManager.createShape();
+    console.log('TODO');
   }
 
   public removeLastShape(): void {
-    this.sceneManager.removeLastShape();
+    //this.shapeManager.removeLastShape();
+    // TODO remove
     //this.renderManager.render();  // shold not need this
+    console.log('TODO');
   }
   
   public removeActiveShape(): void {
-    this.sceneManager.removeActiveShape();
+    //this.shapeManager.removeActiveShape();
+    console.log('TODO');
   }
 
   /**
@@ -28,10 +39,12 @@ export class Operation {
    * @memberof Operation
    */
   public enableCustomDraw(): void {
-    this.sceneManager.setCustomDraw(true);
+    //this.shapeManager.setCustomDraw(true);
+    console.log('TODO');
   }
   
   public enableShapeEdit(): void {
-    this.sceneManager.setShapeEdit(true);
+    //this.shapeManager.setShapeEdit(true);
+    console.log('TODO');
   }
 }

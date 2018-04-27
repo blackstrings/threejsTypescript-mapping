@@ -1,3 +1,4 @@
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 import * as THREE from 'three';
 
 import { Grid } from '../UI/Grid';
@@ -7,6 +8,7 @@ import { Shape } from '../components/shapes/Shape';
 import { VectorUtils } from '../utils/VectorUtils';
 import { Subscription } from 'rxjs/Subscription';
 import { Debug } from '../utils/Debug';
+import { Space } from '../components/Space';
 
 /**
  * Manages actual shape classes.
@@ -15,42 +17,46 @@ import { Debug } from '../utils/Debug';
  * @class SceneManager
  */
 export class SceneManager {
+  
+  public static activeShapeSelectedPub: ReplaySubject<Shape> = new ReplaySubject<Shape>(1);
 
   private debug: Debug = null;
   private activeScene: THREE.Scene = null;
   private grid: Grid = null;
-  public children: THREE.Object3D[];
-
+  
   private shapes: Shape[] = [];
-  private activeShape: Shape = null;
 
-  private isCustomDrawEnabled: boolean = false;
-  private isShapeEditEnabled: boolean = false;
-  private newCustomShapePoints: THREE.Vector3[] = [];
-
-  private tempGeoMat: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-  private tempShapePointMeshes: THREE.Mesh[] = [];
+  
+  public children: THREE.Object3D[];
 
   constructor() {
     this.activeScene = new THREE.Scene();
-    console.error(`active scene ready of id: ${this.activeScene.id}`);
     this.children = this.activeScene.children;
     this.showGrid();
     this.showAxisHelper();
     
     // select the shape base on geometry selection
     Subscriptions.selectedObjectId.subscribe((objectId: number) => {
-      this.activeShape = this.getShape(objectId);
-    });
-
-    Subscriptions.mouseClick.subscribe((mouseClickPosition: THREE.Vector3) => {
-      // custom draw if enabled
-      this.drawCustomShape(mouseClickPosition);
+      // this.activeShape = this.getShape(objectId);
+      
+      // TODO
+      // pub the shape
+      // SceneManager.activeShapeSelectedPub.next(this.activeShape);
     });
 
     Subscriptions.debugSetupComplete.subscribe((debug: Debug) => {
       this.debug = debug;
     });
+    
+    // when new shape gets created
+    Subscriptions.newShapeCreated.subscribe((shape: Shape) => {
+      this.addToScene(shape);
+    });
+    
+    Subscriptions.shapeDeleted.subscribe((shape: Shape) => {
+      this.removeFromScene(shape);
+    });
+    
   }
 
   public showGrid(): void {
@@ -76,8 +82,6 @@ export class SceneManager {
     this.activeScene.add(axis);
   }
 
-
-  //TODO allow add any type of shape
   public addToScene(shape: Shape): void {
     if (shape && this.activeScene) {
       this.activeScene.add(shape.mesh);
@@ -120,182 +124,16 @@ export class SceneManager {
       console.warn(`${prefix} activeScene is null`);
     }
   }
-
-  public createShape(points?: THREE.Vector3[]): void {
-    if (this.activeScene) {
-
-      if (points) {
-
-        const shape: Shape2D = new Shape2D(points);
-
-        // show shape position locaiton visually
-        if (this.debug && this.debug.enabled && this.debug.showShapePosition) {
-          const axisHelper: THREE.AxesHelper = new THREE.AxesHelper(10);
-          shape.mesh.add(axisHelper);
-        }
-
-        this.addShape(shape);
-
-      } else {
-
-        // for debugging only
-        // test shape when no params are passd in and increment each new shape every 10 units apart
-        const jsonPoints = [
-          { x: -12, y: 12, z: 0 },
-          { x: 12, y: 12, z: 0 },
-          { x: 12, y: -12, z: 0 },
-          { x: -12, y: -12, z: 0 }
-        ];
-
-        const points: THREE.Vector3[] = VectorUtils.convertJsonArrayToVec3s(jsonPoints);
-        const s: Shape2D = new Shape2D(points);
-        //s.mesh.position.x = this.children.length * 10;
-        this.addShape(s);
-
-      }
-
-    } else {
-      console.warn('activeScene is null');
-    }
-  }
-
-  /**
-   * Add shape to shapes array and to the scene.
-   * 
-   * @private
-   * @param {Shape} shape 
-   * @memberof SceneManager
-   */
-  private addShape(shape: Shape): void {
-    if (this.shapes) {
-      this.shapes.push(shape);
-      this.addToScene(shape);
-    } else {
-      console.warn('failed to add shape, shape is null');
-    }
-  }
-
-  public getShape(shapeId: number): Shape {
-    let shape: Shape = null;
-    if (this.shapes && this.shapes.length) {
-
-      const shapes: Shape[] = this.shapes.filter((shape) => shape.mesh.id === shapeId);
-      if (shapes && shapes.length) {
-        shape = shapes[0];
-      } else {
-        console.warn(`failed to get shape of id ${shapeId}`);
-      }
-
-    } else {
-      console.warn('failed to get shape, shapes is null or empty');
-    }
-    return shape;
-  }
-
-  /**
-   * When custom draw is enabled, every 3 clicks will create a square
-   * 
-   * @private
-   * @param {THREE.Vector3} mouseClickPosition 
-   * @memberof SceneManager
-   */
-  private drawCustomShape(mouseClickPosition: THREE.Vector3): void {
-
-    // snapping if we want it
-    const snapValue: number = 12;
-    const mouseClickSnapPos: THREE.Vector3 = new THREE.Vector3();
-    const x: number = Math.round(mouseClickPosition.x / snapValue) * snapValue;
-    const y: number = Math.round(mouseClickPosition.y / snapValue) * snapValue;
-    mouseClickSnapPos.set(x, y, 0);
-
-    const maxClick: number = 4;
-    if (this.isCustomDrawEnabled) {
-
-      // collect the clicks until you reach max click
-      if (this.newCustomShapePoints && this.newCustomShapePoints.length < maxClick) {
-
-        // store so we can later pass into shape2D
-        this.newCustomShapePoints.push(mouseClickSnapPos);
-        
-        // create temp mesh on mouse click location
-        this.createTempPointMesh(mouseClickSnapPos);
-
-        if (this.newCustomShapePoints.length >= maxClick) {
-          // draw the shape
-          this.createShape(this.newCustomShapePoints);
-          this.newCustomShapePoints = []; // reset
-          this.setCustomDraw(false);  // turn off
-          this.cleanTempPointMeshes();
-        }
-
-      }
-    } // custom draw is not enabled, do nothing
-  }
-
-  private createTempPointMesh(mouseClickPos: THREE.Vector3): void {
-    if (this.tempShapePointMeshes && this.tempGeoMat) {
-
-      // size
-      const radius: number = 2;
-      const geo: THREE.Geometry = new THREE.CircleGeometry(radius, 8);
-      const mesh: THREE.Mesh = new THREE.Mesh(geo, this.tempGeoMat);
-
-      // move each temp circle into position of where the clicked occured
-      mesh.position.copy(mouseClickPos);
-
-      this.tempShapePointMeshes.push(mesh);
-      this.activeScene.add(mesh);
-    }
-  }
-
-  private cleanTempPointMeshes(): void {
-    if (this.tempShapePointMeshes && this.tempShapePointMeshes.length) {
-      this.tempShapePointMeshes.forEach((mesh) => {
-        this.activeScene.remove(mesh);
-      });
-      this.tempShapePointMeshes = [];
-    }
-  }
-
-  public setCustomDraw(value: boolean): void {
-    this.isCustomDrawEnabled = value;
-  }
-
-  public setShapeEdit(value: boolean): void {
-    this.isShapeEditEnabled = value;
-  }
-
-  public removeLastShape(): void {
-    if (this.shapes && this.shapes.length && this.activeScene) {
-      const shapeToRemove: Shape = this.shapes[this.shapes.length - 1];
-      this.removeShape(shapeToRemove);
-    } else {
-      console.log('failed to remove last shape, shapes is empty or null or activeScene is null');
-    }
-  }
   
-  public removeShape(shape: Shape): void {
-    if (shape) {
-      this.removeFromScene(shape);
-      
-      if (this.shapes && this.shapes.length) {
-        const index: number = this.shapes.indexOf(shape);
-        if (index >= 0) {
-          this.shapes.splice(index, 1);
-        } else {
-          console.warn(`Failed to remove shape from shapes array, index was: ${index}`);
-        }
-      }
-    }
-  }
-  
-  public removeActiveShape(): void {
-    if (this.activeShape) {
-      this.removeShape(this.activeShape);
-      this.activeShape = null;
+  public removeFromSceneById(id: number): boolean {
+    let result: boolean = false;
+    if (id && id >= 0) {
+      this.removeFromScene(null, id);
+      result = true;
     } else {
-      console.log('No active shape removed, activeShape was null');
+      console.warn('Failed to remove shape from scene by id, id is null');
     }
+    return result;
   }
 
   public getActiveScene(): THREE.Scene {

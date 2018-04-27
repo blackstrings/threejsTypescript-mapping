@@ -7,6 +7,7 @@ import { Mouse } from '../UI/Mouse';
 import { CameraManager } from './CameraManager';
 import { SceneManager } from './SceneManager';
 import { Debug } from '../utils/Debug';
+import { ShapeManager } from './ShapeManager';
 
 export class MovementManager {
 
@@ -37,7 +38,11 @@ export class MovementManager {
    */
   private plane: THREE.Plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
-  constructor(private canvasManager: CanvasManager, private cameraManager: CameraManager, private sceneManager: SceneManager, private mouse: Mouse) {
+  constructor(private canvasManager: CanvasManager,
+    private cameraManager: CameraManager,
+    private sceneManager: SceneManager,
+    private mouse: Mouse,
+    private shapeManager: ShapeManager) {
 
     Subscriptions.debugSetupComplete.subscribe((debug: Debug) => {
       this.debug = debug;
@@ -45,7 +50,7 @@ export class MovementManager {
 
     Subscriptions.selectedObjectId.subscribe((objectId: number) => {
       if (this.sceneManager) {
-        const shape: Shape = this.sceneManager.getShape(objectId);
+        const shape: Shape = this.shapeManager.getShapeById(objectId);
         if (shape) {
           this.selectedShape = shape;
           if (this.debug && this.debug.enabled && this.debug.selectedShapeLog) {
