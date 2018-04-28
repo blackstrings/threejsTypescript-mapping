@@ -53,8 +53,8 @@ export class MovementManager {
         const shape: Shape = this.shapeManager.getShapeById(objectId);
         if (shape) {
           this.selectedShape = shape;
-          if (this.debug && this.debug.enabled && this.debug.selectedShapeLog) {
-            console.log('Selected shape is:');
+          if (this.debug && this.debug.enabled && this.debug.selectedShapeForMoveLog) {
+            console.log('<< MovementManager >> Selected shape for move is:');
             console.log(this.selectedShape);
           }
         }

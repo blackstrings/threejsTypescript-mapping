@@ -10,6 +10,7 @@ import { Shape } from '../components/shapes/Shape';
 import { VendorManager } from './VendorManager';
 import { Debug } from '../utils/Debug';
 import { VectorUtils } from '../utils/VectorUtils';
+import { MaterialLibrary } from '../materials/MaterialLibrary';
 
 /**
  * Managees spaces.
@@ -38,8 +39,13 @@ export class ShapeManager {
 
   private tempGeoMat: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
   private tempShapePointMeshes: THREE.Mesh[] = [];
+  
+  private materialLibrary: MaterialLibrary;
 
   constructor() {
+    
+    // the only library full of all possible shapred materials
+    this.materialLibrary = new MaterialLibrary();
 
     // subscriptions
     Subscriptions.debugSetupComplete.subscribe((debug: Debug) => {
@@ -136,7 +142,7 @@ export class ShapeManager {
     let shape: Shape2D = null;
 
     if (points) {
-      shape = new Shape2D(points);
+      shape = new Shape2D(this.materialLibrary, points);
       // show shape position locaiton visually
       if (this.debug && this.debug.enabled && this.debug.showShapePosition) {
         const axisHelper: THREE.AxesHelper = new THREE.AxesHelper(10);
@@ -151,7 +157,7 @@ export class ShapeManager {
         { x: -12, y: -12, z: 0 }
       ];
       const points: THREE.Vector3[] = VectorUtils.convertJsonArrayToVec3s(jsonPoints);
-      shape = new Shape2D(points);
+      shape = new Shape2D(this.materialLibrary, points);
     }
     this.add(shape);
 

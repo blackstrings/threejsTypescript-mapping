@@ -13,8 +13,9 @@ export class Debug {
   public message: string = 'Debug On: ';
 
   public forceEnableCameraRotation: boolean = false;  // All active cameras will have rotation enabeled
-  public mouseMoveLog: boolean = true;               // Mouse will log all movements
-  public selectedShapeLog: boolean = true;            // Movement manager will log selected shape
+  public mouseMoveLog: boolean = false;               // Mouse will log all movements
+  public selectedShapeForMoveLog: boolean = false;            // Movement manager will log selected shape
+  public selectedSpaceLog: boolean = true;            // log the space selected
   public showShapePosition: boolean = false;
 
   constructor(public enabled: boolean = false, message?: string) {

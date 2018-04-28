@@ -2,6 +2,8 @@ import * as THREE from 'three';
 
 import { VectorUtils } from '../../utils/VectorUtils';
 import { Shape } from '../shapes/Shape';
+import { MaterialLibrary } from '../../materials/MaterialLibrary';
+import { AttributeType } from '../AttributeType';
 
 /**
  * Contains thet shape information such as position and shape vertices for 2d
@@ -21,13 +23,25 @@ export class Shape2D extends Shape {
 
   public mesh: THREE.Mesh = null;
 
-  constructor(points: THREE.Vector3[]) {
+  constructor(private materialLib: MaterialLibrary, points: THREE.Vector3[]) {
     super();
     try {
       this.points = points;
       this.create();
     } catch (e) {
       throw e;
+    }
+  }
+
+  public open(): void {
+    if (this.mesh && this.materialLib) {
+      this.mesh.material = this.materialLib.get(AttributeType.SPACE_OPEN);
+    }
+  }
+  
+  public close(): void {
+    if (this.mesh && this.materialLib) {
+      this.mesh.material = this.materialLib.get(AttributeType.SPACE_CLOSE);
     }
   }
 
@@ -58,7 +72,14 @@ export class Shape2D extends Shape {
       const vec2s: THREE.Vector2[] = VectorUtils.convertVec3sToVec2s(this.points);  // from 3d to 2d points
       const shape: THREE.Shape = new THREE.Shape(vec2s);
       const shapeGeo: THREE.ShapeGeometry = new THREE.ShapeGeometry(shape);
-      this.mesh = new THREE.Mesh(shapeGeo, new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff }));
+
+      let mat: THREE.MeshBasicMaterial = this.materialLib.get(AttributeType.SPACE_OPEN) as THREE.MeshBasicMaterial;
+      if (!mat) {
+        mat = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+        console.warn('Shape failed to get material by attributeType, mat is null');
+      }
+
+      this.mesh = new THREE.Mesh(shapeGeo, mat);
       this.mesh.name = 'shape'; // has to be a valid name for the selection manager to filter the geometry during mouse down to make it selectable
       this.uuid = this.mesh.uuid;
       this.id = this.mesh.id;

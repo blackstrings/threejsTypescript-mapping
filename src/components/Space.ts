@@ -18,9 +18,15 @@ export class Space {
     this.label = label;
   }
   
-  public displayOpen(): void {
+  public open(): void {
     if (this.shape) {
-      //this.shape.open();
+      this.shape.open();
+    }
+  }
+
+  public close(): void {
+    if (this.shape) {
+      this.shape.close();
     }
   }
 

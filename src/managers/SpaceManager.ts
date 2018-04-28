@@ -36,7 +36,32 @@ export class SpaceManager {
     // });
   }
   
-  private getSpaceByUUID(uuid: string): Space {
+  /**
+   * Display the space shape as open.
+   * Set the vendor id to null;
+   * 
+   * @param {Space} space 
+   * @memberof SpaceManager
+   */
+  public freeUpSpace(space: Space): void {
+    if (space) {
+      space.open();
+      space.setVendorId(null);
+    } else {
+      console.warn('Failed to free up space, space is null');
+    }
+  }
+  
+  public closeUpSpace(space: Space, vendorId: number): void {
+    if (space) {
+      space.close();
+      space.setVendorId(vendorId);
+    } else {
+      console.warn('Failed to close space, space is null');
+    }
+  }
+  
+  public getSpaceByUUID(uuid: string): Space {
     let space: Space = null;
     if (this.spaces && this.spaces.length) {
       space = this.spaces.filter((space) => space.getUUID() === uuid)[0];
@@ -45,6 +70,19 @@ export class SpaceManager {
       }
     } else {
       console.warn('Failed to get space by uuid, spaces is null or empty, returning null');
+    }
+    return space;
+  }
+
+  public getSapceById(id: number): Space {
+    let space: Space = null;
+    if (this.spaces && this.spaces.length) {
+      space = this.spaces.filter((space) => space.getId() === id)[0];
+      if (!space) {
+        console.warn('Failed to get space by id, no match found, returning null');
+      }
+    } else {
+      console.warn('Failed to get space by id, spaces is null or empty, returning null');
     }
     return space;
   }
