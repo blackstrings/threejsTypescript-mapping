@@ -10,6 +10,7 @@ import { Space } from '../components/Space';
 import { Shape2D } from '../components/shapes/Shape2D';
 import { Shape } from '../components/shapes/Shape';
 import { ShapeManager } from '../managers/ShapeManager';
+import { SpaceService } from '../services/SpaceService';
 
 /**
  * The publish variable lives in the class that will be publishing. Other classes that wish to subscribe must import this class.
@@ -22,6 +23,9 @@ export class Subscriptions {
 
 
   public static selectedObjectId: Observable<number> = SelectionManager.selectedObjectIdPub.asObservable(); // selected object id
+  public static activeSpaceSelected: Observable<Space> = SpaceService.activeSpaceSelectedPub.asObservable(); // selected object id
+  
+  
   
   public static mouseClick: Observable<THREE.Vector3> = SelectionManager.mouseClickPub.asObservable();  // mouse down position
   

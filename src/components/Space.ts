@@ -59,4 +59,10 @@ export class Space {
   public getVendorId(): number {
     return this.vendorId;
   }
+  
+  public toString(): string {
+    let str: string = '';
+    str += `id: ${this.getId()}, vID: ${this.vendorId}`;
+    return str;
+  }
 }

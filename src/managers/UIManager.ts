@@ -1,10 +1,11 @@
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 
-import { Panel } from '../UI/Panel';
-import { Button } from '../UI/Button';
+import { Panel } from '../UI/htmlProxys/Panel';
+import { Button } from '../UI/htmlProxys/Button';
 import { Subscriptions } from '../events/Subscriptions';
 import { Operation } from '../services/Operation';
+import { Space } from '../components/Space';
 
 /**
  * Handles the button GUI for interacting with the canvas.
@@ -13,6 +14,9 @@ import { Operation } from '../services/Operation';
  * @class UIManager
  */
 export class UIManager {
+  
+  private readonly topPanelId: string = 'topPanel';
+  private readonly displayPanelId: string = 'displayPanel';
 
   private panels: Panel[] = [];
   private dom: HTMLElement = null;
@@ -31,11 +35,69 @@ export class UIManager {
       throw new Error('UIManager failed to create, rootDom is null');
     }
 
+    Subscriptions.activeSpaceSelected.subscribe((space: Space) => {
+      this.displaySpaceInfo(space);
+    });
+
   }
 
   private init(): void {
+
+    this.initEditPanel();
+    this.initDisplayPanel();
+
+  }
+
+  /**
+   * Reads out the space info into the UI
+   * 
+   * @param {Space} space 
+   * @memberof UIManager
+   */
+  public displaySpaceInfo(space: Space): void {
+    if (this.panels) {
+      const displayPanel: Panel = this.panels.filter(panel => panel.panelId === this.displayPanelId)[0];
+      
+      if (displayPanel) {
+        displayPanel.dom.innerHTML = space.toString();
+      } else {
+        console.warn('Failed to display space info, displayPanel is null or was not found');
+        displayPanel.dom.innerHTML = 'n/a';
+      }
+    }
+  }
+
+  public addPanel(panel: Panel): void {
+    if (this.panels) {
+      this.panels.push(panel);
+      this.dom.appendChild(panel.dom);
+    } else {
+      console.error('failed to add panel, panels is null');
+    }
+  }
+
+  public removePanel(panel: Panel): void {
+    if (this.panels) {
+      const index: number = this.panels.indexOf(panel);
+      if (index >= 0) {
+        const panelToRemove: Panel = this.panels.splice(index, 1)[0];
+        this.dom.removeChild(panelToRemove.dom);
+        console.log('panel removed successfully');
+      }
+    } else {
+      console.error('failed to remove panel, panel is null');
+    }
+  }
+
+  private initDisplayPanel(): void {
     // panel
-    const panel: Panel = new Panel('topPanel');
+    const panel: Panel = new Panel('displayPanel', this.displayPanelId);
+    this.addPanel(panel);
+  }
+
+  private initEditPanel(): void {
+    // panel
+    const panel: Panel = new Panel('topPanel', this.topPanelId);
     this.addPanel(panel);
 
     // button
@@ -74,30 +136,7 @@ export class UIManager {
     btn.dom.addEventListener('click', () => {
       this.operation.createSpace();
     });
-    
 
-  }
-
-  public addPanel(panel: Panel): void {
-    if (this.panels) {
-      this.panels.push(panel);
-      this.dom.appendChild(panel.dom);
-    } else {
-      console.error('failed to add panel, panels is null');
-    }
-  }
-
-  public removePanel(panel: Panel): void {
-    if (this.panels) {
-      const index: number = this.panels.indexOf(panel);
-      if (index >= 0) {
-        const panelToRemove: Panel = this.panels.splice(index, 1)[0];
-        this.dom.removeChild(panelToRemove.dom);
-        console.log('panel removed successfully');
-      }
-    } else {
-      console.error('failed to remove panel, panel is null');
-    }
   }
 
 }

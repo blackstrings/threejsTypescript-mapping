@@ -5,11 +5,14 @@ import { SceneManager } from '../managers/SceneManager';
 import { Space } from '../components/Space';
 import { Subscriptions } from '../events/Subscriptions';
 import { Debug } from '../utils/Debug';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 
 
 export class SpaceService {
   
   private debug: Debug = null;
+  
+  public static activeSpaceSelectedPub: ReplaySubject<Space> = new ReplaySubject<Space>(1);
 
   private spaceBuilder: SpaceBuilder = null;
   private activeSpace: Space = null;
@@ -31,6 +34,9 @@ export class SpaceService {
           console.log('<< SpaceService >> selected space is:');
           console.log(this.activeSpace);
         }
+        
+        // publish
+        SpaceService.activeSpaceSelectedPub.next(this.activeSpace);
       }
     });
     
