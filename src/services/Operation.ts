@@ -29,8 +29,7 @@ export class Operation {
   }
   
   public removeActiveShape(): void {
-    //this.shapeManager.removeActiveShape();
-    console.log('TODO');
+    this.spaceSerivce.removeActiveSpace();
   }
 
   /**

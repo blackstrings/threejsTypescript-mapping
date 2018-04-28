@@ -35,6 +35,7 @@ export class UIManager {
       throw new Error('UIManager failed to create, rootDom is null');
     }
 
+    // subs
     Subscriptions.activeSpaceSelected.subscribe((space: Space) => {
       this.displaySpaceInfo(space);
     });

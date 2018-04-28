@@ -46,6 +46,14 @@ export class SpaceService {
     this.spaceBuilder.create();
   }
   
+  public removeActiveSpace(): void {
+    if (this.activeSpace) {
+      this.removeCompletely(this.activeSpace);
+    } else {
+      console.warn('Failed to remove active space, activeSpace is null');
+    }
+  }
+  
   public removeSpaceOnly(space: Space): void {
     if (this.spaceManager) {
       this.spaceManager.remove(space);
