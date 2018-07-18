@@ -11,7 +11,7 @@ export class SpaceBuilder {
     
   }
 
-  create() {
+  public create() {
     const shape: Shape2D = this.shapeManager.createShape();
     const space: Space = this.spaceManager.create(shape);
     this.sceneManager.addToScene(shape);

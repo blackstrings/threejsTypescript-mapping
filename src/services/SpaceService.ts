@@ -88,4 +88,10 @@ export class SpaceService {
     }
   }
 
+  public enableCustomSpace(): void {
+    this.shapeManager.setCustomDraw(true);
+    // add the line helper into the scene
+    this.sceneManager.addToScene2(this.shapeManager.createLineHelper().mesh3D);
+  }
+
 }

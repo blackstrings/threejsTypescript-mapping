@@ -91,6 +91,14 @@ export class SceneManager {
   }
 
   /**
+   * Handles adding non-shape objects like helpers
+   * @param {Object3D} obj
+   */
+  public addToScene2(obj: THREE.Object3D): void {
+    this.activeScene.add(obj);
+  }
+
+  /**
    * Handles removing the shape.mesh from the scene only, not the shape itself.
    * 
    * @param {Shape} shape 

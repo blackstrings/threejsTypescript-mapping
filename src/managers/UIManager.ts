@@ -19,6 +19,14 @@ export class UIManager {
   private readonly displayPanelId: string = 'displayPanel';
 
   private panels: Panel[] = [];
+  
+  /**
+   * The UI dom that is nested inside the passed in uiDom
+   * 
+   * @private
+   * @type {HTMLElement}
+   * @memberof UIManager
+   */
   private dom: HTMLElement = null;
 
   public static createNewShapePub: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
@@ -57,6 +65,8 @@ export class UIManager {
    */
   public displaySpaceInfo(space: Space): void {
     if (this.panels) {
+      
+      // get the correct display panel for displaying space
       const displayPanel: Panel = this.panels.filter(panel => panel.panelId === this.displayPanelId)[0];
       
       if (displayPanel) {
@@ -68,7 +78,7 @@ export class UIManager {
     }
   }
 
-  public addPanel(panel: Panel): void {
+  public addPanelToUiDom(panel: Panel): void {
     if (this.panels) {
       this.panels.push(panel);
       this.dom.appendChild(panel.dom);
@@ -93,13 +103,13 @@ export class UIManager {
   private initDisplayPanel(): void {
     // panel
     const panel: Panel = new Panel('displayPanel', this.displayPanelId);
-    this.addPanel(panel);
+    this.addPanelToUiDom(panel);
   }
 
   private initEditPanel(): void {
     // panel
     const panel: Panel = new Panel('topPanel', this.topPanelId);
-    this.addPanel(panel);
+    this.addPanelToUiDom(panel);
 
     // button
     let btn: Button = new Button('btn', 'New Shape');

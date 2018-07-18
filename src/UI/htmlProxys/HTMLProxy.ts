@@ -1,6 +1,6 @@
 
 /**
- * A html element container.
+ * An abastract html element container for all html element to extend from
  * 
  * @export
  * @abstract

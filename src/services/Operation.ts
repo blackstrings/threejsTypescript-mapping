@@ -8,12 +8,12 @@ import { SpaceService } from './SpaceService';
 
 export class Operation {
 
-  constructor(private spaceSerivce: SpaceService, private renderManager: RenderManager) {
+  constructor(private spaceService: SpaceService, private renderManager: RenderManager) {
 
   }
   
   public createSpace(): void {
-    this.spaceSerivce.createNewSpace();
+    this.spaceService.createNewSpace();
   }
 
   public createShape(): void {
@@ -29,7 +29,7 @@ export class Operation {
   }
   
   public removeActiveShape(): void {
-    this.spaceSerivce.removeActiveSpace();
+    this.spaceService.removeActiveSpace();
   }
 
   /**
@@ -38,7 +38,7 @@ export class Operation {
    * @memberof Operation
    */
   public enableCustomDraw(): void {
-    //this.shapeManager.setCustomDraw(true);
+    this.spaceService.enableCustomSpace();
     console.log('TODO');
   }
   

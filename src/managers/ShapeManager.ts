@@ -11,6 +11,7 @@ import { VendorManager } from './VendorManager';
 import { Debug } from '../utils/Debug';
 import { VectorUtils } from '../utils/VectorUtils';
 import { MaterialLibrary } from '../materials/MaterialLibrary';
+import { LineHelper } from "../components/helpers/LineHelper";
 
 /**
  * Managees spaces.
@@ -41,6 +42,8 @@ export class ShapeManager {
   private tempShapePointMeshes: THREE.Mesh[] = [];
   
   private materialLibrary: MaterialLibrary;
+
+  private lineHelper: LineHelper;
 
   constructor() {
     
@@ -194,8 +197,15 @@ export class ShapeManager {
         // create temp mesh on mouse click location
         this.createTempPointMesh(mouseClickSnapPos);
 
+        // update drawing lines while in draw mode
+        const point: THREE.Vector3 = mouseClickPosition.clone();
+        if(this.lineHelper){
+          this.lineHelper.addPoint(point);
+        }
+
+        // draw the shape when points are maxed
         if (this.newCustomShapePoints.length >= maxClick) {
-          // draw the shape
+          this.lineHelper.reset();
           this.createShape(this.newCustomShapePoints);
           this.newCustomShapePoints = []; // reset
           this.setCustomDraw(false);  // turn off
@@ -204,6 +214,14 @@ export class ShapeManager {
 
       }
     } // custom draw is not enabled, do nothing
+  }
+
+  public createLineHelper(): LineHelper {
+    if(!this.lineHelper){
+      const maxPoints: number = 500;
+      this.lineHelper = new LineHelper(maxPoints);
+    }
+    return this.lineHelper;
   }
 
   private createTempPointMesh(mouseClickPos: THREE.Vector3): void {
