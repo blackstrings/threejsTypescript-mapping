@@ -26,6 +26,8 @@ export class ShapeManager {
 
   // for generic meshes without shape
   public static newMeshCreated: ReplaySubject<THREE.Mesh> = new ReplaySubject<THREE.Mesh>(1);
+
+  // for deleting a mesh
   public static meshDeleted: ReplaySubject<THREE.Mesh> = new ReplaySubject<THREE.Mesh>(1);
 
   private debug: Debug = null;
@@ -185,7 +187,7 @@ export class ShapeManager {
     const y: number = Math.round(mouseClickPosition.y / snapValue) * snapValue;
     mouseClickSnapPos.set(x, y, 0);
 
-    const maxClick: number = 4;
+    const maxClick: number = 12;
     if (this.isCustomDrawEnabled) {
 
       // collect the clicks until you reach max click
@@ -198,7 +200,7 @@ export class ShapeManager {
         this.createTempPointMesh(mouseClickSnapPos);
 
         // update drawing lines while in draw mode
-        const point: THREE.Vector3 = mouseClickPosition.clone();
+        const point: THREE.Vector3 = mouseClickSnapPos.clone();
         if(this.lineHelper){
           this.lineHelper.addPoint(point);
         }
